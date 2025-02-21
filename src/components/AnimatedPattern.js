@@ -108,19 +108,55 @@ const patterns = {
     }
   },
 
-  matrix: (ctx, time, width, height) => {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+  warpingCircle: (ctx, time, width, height) => {
+    // Clear background
+    ctx.fillStyle = 'rgb(9, 9, 9)';
     ctx.fillRect(0, 0, width, height);
-    ctx.fillStyle = '#0F0';
 
-    const fontSize = 14;
-    ctx.font = `${fontSize}px monospace`;
+    // Helper function to recreate p5.js lerp
+    const lerp = (start, end, amt) => start * (1 - amt) + end * amt;
 
-    for (let i = 0; i < width / fontSize; i++) {
-      const x = i * fontSize;
-      const y = (time * 100 + i * fontSize) % height;
-      const char = String.fromCharCode(33 + Math.floor(Math.random() * 93));
-      ctx.fillText(char, x, y);
+    // Constants
+    const TAU = Math.PI * 2;
+    const s = 0.1; // Step size
+    const scale = Math.min(width, height) / 540; // Scale factor based on original 540x540
+
+    // Draw warping pattern
+    for (let i = s; i < 2; i += s) {
+      for (let j = 0; j < TAU; j += s) {
+        // Calculate points for the quad
+        const points = [
+          [i, j],
+          [i + s, j],
+          [i + s, j + s],
+          [i, j + s],
+        ].map(([u, v]) => {
+          const x = u * Math.sin(v);
+          const y = u * Math.cos(v);
+          const e = lerp(
+            x * x + y * y + 1,
+            1,
+            Math.sin(time * 0.02 - u / 2 + j * 6)
+          );
+
+          return [
+            (((x - 1) / e) * 99 + 360) * scale,
+            (400 + (99 * (y - 1 - Math.tan(time * 0.01))) / e) * scale,
+          ];
+        });
+
+        // Draw the quad
+        ctx.beginPath();
+        ctx.moveTo(points[0][0], points[0][1]);
+        for (let k = 1; k < points.length; k++) {
+          ctx.lineTo(points[k][0], points[k][1]);
+        }
+        ctx.closePath();
+
+        // Set fill style with slight transparency for better blending
+        ctx.fillStyle = `rgba(255, 255, 255, 0.1)`;
+        ctx.fill();
+      }
     }
   },
 };
@@ -129,15 +165,20 @@ const AnimatedPattern = () => {
   const { selectedPattern } = usePattern();
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
+  const timeRef = useRef(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    let time = 0;
 
     const animate = () => {
-      time += 0.03;
-      patterns[selectedPattern](ctx, time, canvas.width, canvas.height);
+      timeRef.current += 0.03;
+      patterns[selectedPattern](
+        ctx,
+        timeRef.current,
+        canvas.width,
+        canvas.height
+      );
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 

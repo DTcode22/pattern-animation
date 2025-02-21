@@ -8,7 +8,7 @@ function ClientSidePatternSelector() {
     { id: 'vortex', name: 'Vortex Pattern' },
     { id: 'mathPattern', name: 'Mathematical Flow' },
     { id: 'auroraWaves', name: 'Aurora Waves' },
-    { id: 'matrix', name: 'Matrix Rain' },
+    { id: 'warpingCircle', name: 'Warping Circle' },
   ];
 
   return (
