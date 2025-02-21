@@ -8,7 +8,7 @@ const PatternSelector = () => {
 
   const patterns = [
     { id: 'vortex', name: 'Vortex Pattern' },
-    { id: 'waves', name: 'Wave Pattern' },
+    { id: 'mathPattern', name: 'Mathematical Flow' },
     { id: 'spiral', name: 'Spiral Pattern' },
     { id: 'matrix', name: 'Matrix Rain' },
   ];

@@ -7,8 +7,8 @@ function ClientSidePatternSelector() {
   const patterns = [
     { id: 'vortex', name: 'Vortex Pattern' },
     { id: 'mathPattern', name: 'Mathematical Flow' },
-    { id: 'auroraWaves', name: 'Aurora Waves' },
-    { id: 'warpingCircle', name: 'Warping Circle' },
+    { id: 'spiral', name: 'Spiral Pattern' },
+    { id: 'matrix', name: 'Matrix Rain' },
   ];
 
   return (

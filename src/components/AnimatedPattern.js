@@ -2,28 +2,34 @@
 
 import React, { useEffect, useRef } from 'react';
 import { usePattern } from '../app/context/PatternContext';
+import { usePatternParameters } from '../app/context/PatternParametersContext';
 
 const patterns = {
-  vortex: (ctx, time, width, height) => {
+  vortex: (ctx, time, width, height, params) => {
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, width, height);
     ctx.fillStyle = 'white';
 
-    for (let y = 0; y <= 200; y += 2) {
-      for (let x = 0; x <= 200; x += 2) {
+    const step = 2 / params.density;
+    for (let y = 0; y <= 200; y += step) {
+      for (let x = 0; x <= 200; x += step) {
         const k = x / 8 - 12;
         const e = y / 8 - 12;
         const mag = Math.sqrt(k * k + e * e);
         const o = 2 - mag / 3;
-        const d = -5 * Math.abs(Math.sin(k / 2) * Math.cos(e * 0.8));
+        const d =
+          -5 * params.intensity * Math.abs(Math.sin(k / 2) * Math.cos(e * 0.8));
 
         const px =
-          (x - d * k * 4 + d * k * Math.sin(d + time)) * 0.7 + k * o * 2 + 130;
+          (x - d * k * 4 + d * k * Math.sin(d + time)) * 0.7 * params.scale +
+          k * o * 2 +
+          130;
         const py =
           (y -
             (d * y) / 5 +
             d * e * Math.cos(d + time + o) * Math.sin(time + d)) *
-            0.7 +
+            0.7 *
+            params.scale +
           e * o +
           70;
 
@@ -163,6 +169,7 @@ const patterns = {
 
 const AnimatedPattern = () => {
   const { selectedPattern } = usePattern();
+  const { parameters } = usePatternParameters();
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
   const timeRef = useRef(0);
@@ -172,12 +179,13 @@ const AnimatedPattern = () => {
     const ctx = canvas.getContext('2d');
 
     const animate = () => {
-      timeRef.current += 0.03;
+      timeRef.current += parameters[selectedPattern].speed;
       patterns[selectedPattern](
         ctx,
         timeRef.current,
         canvas.width,
-        canvas.height
+        canvas.height,
+        parameters[selectedPattern]
       );
       animationFrameRef.current = requestAnimationFrame(animate);
     };
@@ -198,7 +206,7 @@ const AnimatedPattern = () => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [selectedPattern]);
+  }, [selectedPattern, parameters]);
 
   return (
     <div className="w-full h-full min-h-[800px] bg-black">
